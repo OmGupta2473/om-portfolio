@@ -68,10 +68,10 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'om-portfolio-b0444';
  */
 const styles = `
   :root {
-    --primary: #ef4444;
-    --primary-hover: #dc2626;
-    --bg-dark: #0a0a0a;
-    --bg-card: #111827;
+    --primary: #ef4444; /* red-500 */
+    --primary-hover: #dc2626; /* red-600 */
+    --bg-dark: #0a0a0a; /* neutral-950 */
+    --bg-card: #111827; /* gray-900 */
     --text-white: #f3f4f6;
     --text-gray: #9ca3af;
     --border-color: #1f2937;
@@ -102,7 +102,7 @@ const styles = `
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 1rem; /* Very compact mobile padding */
+    padding: 0 1.25rem;
   }
   
   @media (min-width: 768px) {
@@ -121,7 +121,7 @@ const styles = `
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.5rem 1.25rem; /* Smaller mobile buttons */
+    padding: 0.5rem 1.25rem;
     border-radius: 9999px;
     font-weight: 500;
     transition: all 0.3s ease;
@@ -166,7 +166,7 @@ const styles = `
     width: 100%;
     z-index: 50; 
     transition: all 0.3s ease;
-    padding: 0.75rem 0; /* Compact mobile nav */
+    padding: 0.75rem 0;
   }
   
   @media (min-width: 768px) {
@@ -221,39 +221,40 @@ const styles = `
 
   /* HERO SECTION */
   .hero-section {
-    min-height: auto; /* Allow content to dictate height on mobile */
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 5rem; /* Clear navbar */
-    padding-bottom: 1rem; 
+    padding-top: 4rem; 
+    padding-bottom: 0.5rem; 
     position: relative;
     overflow: hidden;
     background: transparent; 
   }
 
   .hero-grid {
-    display: grid;
-    grid-template-columns: 1fr; 
-    gap: 1.5rem; /* Minimal gap on mobile */
+    display: flex; 
+    flex-direction: column;
+    gap: 0.5rem; 
     align-items: center;
     position: relative;
     z-index: 1; 
+    width: 100%;
   }
 
   .hero-title {
-    font-size: 2.25rem; /* Smaller mobile title */
+    font-size: clamp(2rem, 7vw, 4.5rem); 
     font-weight: bold;
     line-height: 1.1;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.25rem;
     text-align: center;
   }
 
   .hero-subtitle {
-    font-size: 1rem;
+    font-size: clamp(0.9rem, 3.5vw, 1.5rem);
     color: var(--text-gray);
-    margin-bottom: 1.5rem;
-    min-height: 2.5rem; 
+    margin-bottom: 1.25rem;
+    min-height: 2rem; 
     display: flex; 
     align-items: center;
     justify-content: center;
@@ -266,25 +267,27 @@ const styles = `
     flex-wrap: wrap;
     gap: 0.75rem;
     justify-content: center;
+    margin-bottom: 1rem;
   }
 
   .hero-orbit-container {
     position: relative;
-    height: 260px; /* Force smaller height container on mobile */
+    height: 250px; 
     width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin-top: 0.5rem;
-    transform: scale(0.65); /* Aggressively scale down entire orbit on mobile */
+    transform: scale(0.65); /* Mobile Scale */
     transform-origin: center center;
   }
 
   .profile-circle {
-    width: 140px; height: 140px;
+    width: 130px; 
+    height: 130px;
     border-radius: 50%;
     border: 4px solid rgba(239, 68, 68, 0.3);
-    box-shadow: 0 0 30px rgba(220, 38, 38, 0.3);
+    box-shadow: 0 0 25px rgba(220, 38, 38, 0.3);
     overflow: hidden;
     background: #111827;
     position: relative;
@@ -294,24 +297,34 @@ const styles = `
   .profile-img { width: 100%; height: 100%; object-fit: cover; }
 
   .orbit-ring { position: absolute; border-radius: 50%; border: 1px solid #1f2937; }
-  .orbit-ring.inner { width: 220px; height: 220px; }
-  .orbit-ring.outer { width: 320px; height: 320px; border-style: dashed; border-color: rgba(31, 41, 55, 0.5); }
+  .orbit-ring.inner { width: 210px; height: 210px; }
+  .orbit-ring.outer { width: 310px; height: 310px; border-style: dashed; border-color: rgba(31, 41, 55, 0.5); }
 
-  @media (min-width: 768px) {
-    .hero-section { min-height: 100vh; padding-bottom: 3rem; }
-    .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; }
-    .hero-title { font-size: 4.5rem; text-align: left; }
-    .hero-subtitle { font-size: 1.5rem; justify-content: flex-start; text-align: left; min-height: 3rem; }
-    .hero-actions { justify-content: flex-start; gap: 1rem; }
-    .hero-orbit-container { height: 400px; margin-top: 0; transform: translateX(40px) scale(1); }
+  @media (min-width: 1024px) {
+    .hero-section { min-height: 100vh; padding-top: 5rem; padding-bottom: 3rem; }
+    .hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; }
+    .hero-title { font-size: 4.5rem; text-align: left; margin-bottom: 1.5rem; }
+    .hero-subtitle { font-size: 1.5rem; justify-content: flex-start; text-align: left; min-height: 3rem; margin-bottom: 2rem; }
+    .hero-actions { justify-content: flex-start; gap: 1rem; margin-bottom: 0; }
+    
+    /* DESKTOP ORBIT FIXES */
+    /* Remove translate, reset scale, ensure centered alignment */
+    .hero-orbit-container { 
+      height: 450px; 
+      margin-top: 0; 
+      transform: translateX(0) scale(1); 
+    }
+    
     .profile-circle { width: 224px; height: 224px; box-shadow: 0 0 50px rgba(220, 38, 38, 0.3); }
-    .orbit-ring.inner { width: 380px; height: 380px; }
-    .orbit-ring.outer { width: 550px; height: 550px; }
+    
+    /* Tightened rings for desktop */
+    .orbit-ring.inner { width: 330px; height: 330px; }
+    .orbit-ring.outer { width: 450px; height: 450px; }
   }
 
   /* SECTIONS */
   .section {
-    padding: 2rem 0; /* Compact section spacing */
+    padding: 3rem 0;
     position: relative;
     background: transparent;
   }
@@ -327,25 +340,25 @@ const styles = `
   .section-label { color: var(--primary); font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem; }
 
   .about-grid {
-    display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: center;
+    display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center;
   }
 
   .skill-tag {
     display: inline-block;
-    padding: 0.35rem 0.8rem;
+    padding: 0.4rem 0.9rem; 
     background: #111827; border: 1px solid #1f2937; border-radius: 9999px;
-    font-size: 0.75rem; color: #d1d5db;
-    margin: 0 0.35rem 0.35rem 0;
+    font-size: 0.8rem; color: #d1d5db;
+    margin: 0 0.4rem 0.4rem 0;
     transition: all 0.3s;
   }
   .skill-tag:hover { border-color: var(--primary); color: white; }
 
   .code-card {
     background: #0f1115; border: 1px solid #1f2937; border-radius: 0.75rem;
-    padding: 1rem;
+    padding: 1.25rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     font-family: monospace; transition: border-color 0.5s;
-    width: 100%; overflow-x: auto; font-size: 0.8rem;
+    width: 100%; overflow-x: auto; font-size: 0.85rem;
   }
   .code-card:hover { border-color: rgba(239, 68, 68, 0.3); }
 
@@ -492,7 +505,7 @@ const ParticleBackground = () => {
 
     const isMobile = window.innerWidth < 768;
     const particles = [];
-    const particleCount = isMobile ? 15 : 50; // Further reduced for mobile performance
+    const particleCount = isMobile ? 15 : 50; 
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
@@ -643,15 +656,31 @@ const SocialIcon = ({ Icon, href }) => (
 );
 
 const HERO_TITLES = [
-  'ML Engineering Enthusiast',
-  'AI Development Enthusiast',
-  'Full Stack Development Enthusiast'
+  'a ML Engineering Enthusiast',
+  'an AI Development Enthusiast',
+  'a Full Stack Development Enthusiast'
 ];
 
 // 3. Hero Section
 const Hero = () => {
   const typingText = useTypewriter(HERO_TITLES);
   const avatarUrl = "./avatar.png";
+  const [radius, setRadius] = useState(110); // Default mobile radius
+
+  useEffect(() => {
+    const updateRadius = () => {
+      // Increase radius on desktop (≥ 1024px) so icons clear the larger avatar
+      if (window.innerWidth >= 1024) {
+        setRadius(190);
+      } else {
+        setRadius(110);
+      }
+    };
+
+    updateRadius(); // Initial check
+    window.addEventListener('resize', updateRadius);
+    return () => window.removeEventListener('resize', updateRadius);
+  }, []);
 
   return (
     <section id="home" className="hero-section">
@@ -699,11 +728,11 @@ const Hero = () => {
           <div className="orbit-ring inner" />
           <div className="orbit-ring outer" />
 
-          <OrbitingIcon icon={<Code2 size={20} />} angle={0} radius={110} speed={20} />
-          <OrbitingIcon icon={<BrainCircuit size={20} />} angle={72} radius={110} speed={20} />
-          <OrbitingIcon icon={<Database size={20} />} angle={144} radius={110} speed={20} />
-          <OrbitingIcon icon={<Globe size={20} />} angle={216} radius={110} speed={20} />
-          <OrbitingIcon icon={<Cpu size={20} />} angle={288} radius={110} speed={20} />
+          <OrbitingIcon icon={<Code2 size={20} />} angle={0} radius={radius} speed={20} />
+          <OrbitingIcon icon={<BrainCircuit size={20} />} angle={72} radius={radius} speed={20} />
+          <OrbitingIcon icon={<Database size={20} />} angle={144} radius={radius} speed={20} />
+          <OrbitingIcon icon={<Globe size={20} />} angle={216} radius={radius} speed={20} />
+          <OrbitingIcon icon={<Cpu size={20} />} angle={288} radius={radius} speed={20} />
         </motion.div>
       </div>
     </section>
@@ -788,7 +817,7 @@ const About = () => {
                  <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: '#ef4444' }} />
                  <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: '#eab308' }} />
                  <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: '#22c55e' }} />
-                 <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#4b5563' }}>om_kumar.py</span>
+                 <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#4b5563' }}>om_gupta.py</span>
               </div>
 
               <div style={{ lineHeight: 1.8, fontSize: '0.8rem' }}>
