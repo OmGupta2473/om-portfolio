@@ -61,8 +61,6 @@ try {
   console.error("Firebase Initialization Error:", error);
 }
 
-// Use a unique App ID for the data path
-// FIXED: Use the environment variable __app_id if available, otherwise fallback
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'om-portfolio-b0444';
 
 /**
@@ -70,10 +68,10 @@ const appId = typeof __app_id !== 'undefined' ? __app_id : 'om-portfolio-b0444';
  */
 const styles = `
   :root {
-    --primary: #ef4444; /* red-500 */
-    --primary-hover: #dc2626; /* red-600 */
-    --bg-dark: #0a0a0a; /* neutral-950 */
-    --bg-card: #111827; /* gray-900 */
+    --primary: #ef4444;
+    --primary-hover: #dc2626;
+    --bg-dark: #0a0a0a;
+    --bg-card: #111827;
     --text-white: #f3f4f6;
     --text-gray: #9ca3af;
     --border-color: #1f2937;
@@ -92,22 +90,23 @@ const styles = `
     font-family: var(--font-main);
     overflow-x: hidden;
     margin: 0;
+    width: 100%;
   }
 
-  a {
-    text-decoration: none;
-    color: inherit;
-  }
-
-  ul {
-    list-style: none;
-  }
+  a { text-decoration: none; color: inherit; }
+  ul { list-style: none; }
+  img { max-width: 100%; display: block; }
 
   /* UTILITIES */
   .container {
+    width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 1.5rem;
+    padding: 0 1rem; /* Very compact mobile padding */
+  }
+  
+  @media (min-width: 768px) {
+    .container { padding: 0 1.5rem; }
   }
 
   .text-gradient {
@@ -120,25 +119,31 @@ const styles = `
   .btn {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
-    padding: 0.75rem 2rem;
+    padding: 0.5rem 1.25rem; /* Smaller mobile buttons */
     border-radius: 9999px;
     font-weight: 500;
     transition: all 0.3s ease;
     cursor: pointer;
     border: none;
-    font-size: 1rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  @media (min-width: 768px) {
+    .btn { padding: 0.75rem 2rem; font-size: 1rem; }
   }
 
   .btn-primary {
     background-color: var(--primary-hover);
     color: white;
-    box-shadow: 0 0 20px rgba(220, 38, 38, 0.5);
+    box-shadow: 0 0 15px rgba(220, 38, 38, 0.4);
   }
   
   .btn-primary:hover {
     background-color: #b91c1c;
-    box-shadow: 0 0 30px rgba(220, 38, 38, 0.8);
+    box-shadow: 0 0 25px rgba(220, 38, 38, 0.7);
     transform: translateY(-2px);
   }
 
@@ -161,14 +166,18 @@ const styles = `
     width: 100%;
     z-index: 50; 
     transition: all 0.3s ease;
-    padding: 1.5rem 0;
+    padding: 0.75rem 0; /* Compact mobile nav */
+  }
+  
+  @media (min-width: 768px) {
+    .navbar { padding: 1.5rem 0; }
   }
 
   .navbar.scrolled {
-    background-color: rgba(10, 10, 10, 0.9);
+    background-color: rgba(10, 10, 10, 0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(127, 29, 29, 0.3);
-    padding: 1rem 0;
+    padding: 0.5rem 0;
   }
 
   .nav-content {
@@ -191,48 +200,19 @@ const styles = `
     position: relative;
   }
 
-  .nav-link:hover {
-    color: white;
-  }
-
+  .nav-link:hover { color: white; }
   .nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background-color: var(--primary);
-    transition: width 0.3s ease;
+    content: ''; position: absolute; bottom: -4px; left: 0; width: 0; height: 2px;
+    background-color: var(--primary); transition: width 0.3s ease;
   }
-
-  .nav-link:hover::after {
-    width: 100%;
-  }
+  .nav-link:hover::after { width: 100%; }
 
   .social-group {
-    display: flex;
-    gap: 1rem;
-    margin-left: 1rem;
-    padding-left: 1rem;
-    border-left: 1px solid #374151;
+    display: flex; gap: 1rem; margin-left: 1rem; padding-left: 1rem; border-left: 1px solid #374151;
   }
-
-  .social-icon {
-    color: #9ca3af;
-    transition: all 0.3s ease;
-  }
-
-  .social-icon:hover {
-    color: var(--primary);
-    transform: scale(1.1);
-  }
-
-  .mobile-toggle {
-    display: block;
-    cursor: pointer;
-    color: white;
-  }
+  .social-icon { color: #9ca3af; transition: all 0.3s ease; }
+  .social-icon:hover { color: var(--primary); transform: scale(1.1); }
+  .mobile-toggle { display: block; cursor: pointer; color: white; }
 
   @media (min-width: 768px) {
     .nav-links { display: flex; }
@@ -241,11 +221,12 @@ const styles = `
 
   /* HERO SECTION */
   .hero-section {
-    min-height: 100vh;
+    min-height: auto; /* Allow content to dictate height on mobile */
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 5rem;
+    padding-top: 5rem; /* Clear navbar */
+    padding-bottom: 1rem; 
     position: relative;
     overflow: hidden;
     background: transparent; 
@@ -253,263 +234,190 @@ const styles = `
 
   .hero-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 3rem;
+    grid-template-columns: 1fr; 
+    gap: 1.5rem; /* Minimal gap on mobile */
     align-items: center;
     position: relative;
     z-index: 1; 
   }
 
   .hero-title {
-    font-size: 3rem;
+    font-size: 2.25rem; /* Smaller mobile title */
     font-weight: bold;
-    line-height: 1.2;
-    margin-bottom: 1.5rem;
+    line-height: 1.1;
+    margin-bottom: 0.75rem;
+    text-align: center;
   }
 
   .hero-subtitle {
-    font-size: 1.5rem;
+    font-size: 1rem;
     color: var(--text-gray);
-    margin-bottom: 2rem;
-    height: 2.5rem;
+    margin-bottom: 1.5rem;
+    min-height: 2.5rem; 
     display: flex; 
     align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    text-align: center;
+  }
+  
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
   }
 
   .hero-orbit-container {
     position: relative;
-    height: 400px;
+    height: 260px; /* Force smaller height container on mobile */
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 0.5rem;
+    transform: scale(0.65); /* Aggressively scale down entire orbit on mobile */
+    transform-origin: center center;
   }
 
   .profile-circle {
-    width: 160px;
-    height: 160px;
+    width: 140px; height: 140px;
     border-radius: 50%;
     border: 4px solid rgba(239, 68, 68, 0.3);
-    box-shadow: 0 0 50px rgba(220, 38, 38, 0.3);
+    box-shadow: 0 0 30px rgba(220, 38, 38, 0.3);
     overflow: hidden;
     background: #111827;
     position: relative;
     z-index: 10;
   }
 
-  .profile-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  .profile-img { width: 100%; height: 100%; object-fit: cover; }
 
-  .orbit-ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 1px solid #1f2937;
-  }
-  
-  .orbit-ring.inner { width: 280px; height: 280px; }
-  .orbit-ring.outer { width: 400px; height: 400px; border-style: dashed; border-color: rgba(31, 41, 55, 0.5); }
+  .orbit-ring { position: absolute; border-radius: 50%; border: 1px solid #1f2937; }
+  .orbit-ring.inner { width: 220px; height: 220px; }
+  .orbit-ring.outer { width: 320px; height: 320px; border-style: dashed; border-color: rgba(31, 41, 55, 0.5); }
 
   @media (min-width: 768px) {
-    .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-    .hero-title { font-size: 4.5rem; }
-    .profile-circle { width: 224px; height: 224px; }
+    .hero-section { min-height: 100vh; padding-bottom: 3rem; }
+    .hero-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 3rem; }
+    .hero-title { font-size: 4.5rem; text-align: left; }
+    .hero-subtitle { font-size: 1.5rem; justify-content: flex-start; text-align: left; min-height: 3rem; }
+    .hero-actions { justify-content: flex-start; gap: 1rem; }
+    .hero-orbit-container { height: 400px; margin-top: 0; transform: translateX(40px) scale(1); }
+    .profile-circle { width: 224px; height: 224px; box-shadow: 0 0 50px rgba(220, 38, 38, 0.3); }
     .orbit-ring.inner { width: 380px; height: 380px; }
     .orbit-ring.outer { width: 550px; height: 550px; }
-    .hero-orbit-container { transform: translateX(40px); }
   }
 
   /* SECTIONS */
   .section {
-    padding: 6rem 0;
+    padding: 2rem 0; /* Compact section spacing */
     position: relative;
     background: transparent;
   }
+  
+  @media (min-width: 768px) {
+    .section { padding: 6rem 0; }
+  }
 
   .section-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;
   }
-
-  .section-line {
-    height: 2px;
-    width: 3rem;
-    background-color: var(--primary);
-  }
-
-  .section-label {
-    color: var(--primary);
-    font-weight: 500;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
+  .section-line { height: 2px; width: 3rem; background-color: var(--primary); }
+  .section-label { color: var(--primary); font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.8rem; }
 
   .about-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 4rem;
-    align-items: center;
+    display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: center;
   }
 
   .skill-tag {
     display: inline-block;
-    padding: 0.5rem 1rem;
-    background: #111827;
-    border: 1px solid #1f2937;
-    border-radius: 9999px;
-    font-size: 0.875rem;
-    color: #d1d5db;
-    margin: 0 0.75rem 0.75rem 0;
+    padding: 0.35rem 0.8rem;
+    background: #111827; border: 1px solid #1f2937; border-radius: 9999px;
+    font-size: 0.75rem; color: #d1d5db;
+    margin: 0 0.35rem 0.35rem 0;
     transition: all 0.3s;
   }
-
-  .skill-tag:hover {
-    border-color: var(--primary);
-    color: white;
-  }
+  .skill-tag:hover { border-color: var(--primary); color: white; }
 
   .code-card {
-    background: #0f1115;
-    border: 1px solid #1f2937;
-    border-radius: 0.75rem;
-    padding: 1.5rem;
+    background: #0f1115; border: 1px solid #1f2937; border-radius: 0.75rem;
+    padding: 1rem;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    font-family: monospace;
-    transition: border-color 0.5s;
+    font-family: monospace; transition: border-color 0.5s;
+    width: 100%; overflow-x: auto; font-size: 0.8rem;
   }
-  
-  .code-card:hover {
-    border-color: rgba(239, 68, 68, 0.3);
-  }
+  .code-card:hover { border-color: rgba(239, 68, 68, 0.3); }
 
   @media (min-width: 768px) {
-    .about-grid { grid-template-columns: 1fr 1fr; }
+    .about-grid { grid-template-columns: 1fr 1fr; gap: 4rem; }
+    .skill-tag { padding: 0.5rem 1rem; font-size: 0.875rem; margin: 0 0.5rem 0.5rem 0; }
+    .code-card { padding: 1.5rem; font-size: 0.9rem; }
+    .section-header { margin-bottom: 1.5rem; }
   }
 
   /* PROJECTS SECTION */
   .project-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin-top: 3rem;
+    display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.5rem;
   }
 
   .project-card {
-    background: #111827;
-    border: 1px solid #1f2937;
-    border-radius: 1rem;
-    overflow: hidden;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    display: flex;
-    flex-direction: column;
-    position: relative; 
+    background: #111827; border: 1px solid #1f2937; border-radius: 1rem;
+    overflow: hidden; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex; flex-direction: column; position: relative; 
   }
-
   .project-card:hover {
     box-shadow: 0 20px 40px -5px rgba(220, 38, 38, 0.15), 0 0 15px rgba(220, 38, 38, 0.1);
-    transform: translateY(-10px) scale(1.02);
-    border-color: rgba(239, 68, 68, 0.5);
-    z-index: 10;
+    transform: translateY(-5px) scale(1.01); 
+    border-color: rgba(239, 68, 68, 0.5); z-index: 10;
   }
 
   .project-links {
-    margin-top: auto; 
-    display: flex;
-    gap: 1rem;
-    opacity: 0;
-    transform: translateY(15px);
-    transition: all 0.4s ease;
-    padding-top: 1.5rem;
+    margin-top: auto; display: flex; gap: 1rem;
+    opacity: 1; transform: translateY(0);
+    padding-top: 1.25rem; transition: all 0.3s ease;
   }
-
-  .project-card:hover .project-links {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  @media (max-width: 768px) {
-    .project-links {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
   .project-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #d1d5db;
-    transition: color 0.2s;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.8rem; font-weight: 500; color: #d1d5db; transition: color 0.2s;
   }
-
-  .project-btn:hover {
-    color: var(--primary);
-  }
+  .project-btn:hover { color: var(--primary); }
 
   @media (min-width: 768px) {
-    .project-grid { grid-template-columns: 1fr 1fr; }
+    .project-grid { grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 3rem; }
+    .project-links { opacity: 0; transform: translateY(15px); padding-top: 1.5rem; }
+    .project-card:hover .project-links { opacity: 1; transform: translateY(0); }
+    .project-btn { font-size: 0.875rem; }
   }
 
   /* CONTACT SECTION */
   .contact-input {
-    width: 100%;
-    background: black;
-    border: 1px solid #1f2937;
-    border-radius: 0.5rem;
-    padding: 0.75rem 1rem;
-    color: white;
-    margin-bottom: 1.5rem;
-    outline: none;
-    transition: border-color 0.3s;
+    width: 100%; background: black; border: 1px solid #1f2937; border-radius: 0.5rem;
+    padding: 0.75rem 1rem; color: white;
+    margin-bottom: 0.75rem; outline: none; transition: border-color 0.3s;
+    font-size: 0.9rem;
   }
-
-  .contact-input:focus {
-    border-color: var(--primary);
-  }
-
-  .contact-label {
-    display: block;
-    font-size: 0.875rem;
-    color: #9ca3af;
-    margin-bottom: 0.5rem;
-  }
+  .contact-input:focus { border-color: var(--primary); }
+  .contact-label { display: block; font-size: 0.8rem; color: #9ca3af; margin-bottom: 0.35rem; }
 
   .glass-card {
-    background: rgba(17, 24, 39, 0.5);
-    backdrop-filter: blur(4px);
-    padding: 2rem;
-    border-radius: 1rem;
-    border: 1px solid #1f2937;
+    background: rgba(17, 24, 39, 0.5); backdrop-filter: blur(4px);
+    padding: 1.25rem; border-radius: 1rem; border: 1px solid #1f2937;
+  }
+  .contact-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; }
+
+  @media (min-width: 768px) {
+    .glass-card { padding: 2rem; }
+    .contact-grid { grid-template-columns: 1fr 1fr; gap: 4rem; }
+    .contact-input { margin-bottom: 1.5rem; font-size: 0.95rem; }
+    .contact-label { font-size: 0.875rem; margin-bottom: 0.5rem; }
   }
 
-  /* UTILS */
-  .code-purple { color: #c084fc; }
-  .code-yellow { color: #fef08a; }
-  .code-green { color: #4ade80; }
-  .code-red { color: #f87171; }
-  .code-blue { color: #60a5fa; }
-  .code-orange { color: #fb923c; }
-  
   /* ANIMATIONS */
-  @keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-25%); }
-  }
-  .animate-bounce {
-    animation: bounce 1s infinite;
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  .animate-spin {
-    animation: spin 1s linear infinite;
-  }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-25%); } }
+  .animate-bounce { animation: bounce 1s infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  .animate-spin { animation: spin 1s linear infinite; }
 `;
 
 /**
@@ -569,6 +477,8 @@ const ParticleBackground = () => {
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return; 
+    
     const ctx = canvas.getContext('2d');
     let animationFrameId;
 
@@ -580,8 +490,9 @@ const ParticleBackground = () => {
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
+    const isMobile = window.innerWidth < 768;
     const particles = [];
-    const particleCount = 50;
+    const particleCount = isMobile ? 15 : 50; // Further reduced for mobile performance
 
     for (let i = 0; i < particleCount; i++) {
       particles.push({
@@ -612,21 +523,23 @@ const ParticleBackground = () => {
         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
 
-        particles.forEach((p2, j) => {
-          if (i === j) return;
-          const dx = p.x - p2.x;
-          const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+        if (!isMobile) {
+          particles.forEach((p2, j) => {
+            if (i === j) return;
+            const dx = p.x - p2.x;
+            const dy = p.y - p2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < 100) {
-            ctx.strokeStyle = `rgba(239, 68, 68, ${0.1 * (1 - dist / 100)})`;
-            ctx.lineWidth = 0.5;
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        });
+            if (dist < 100) {
+              ctx.strokeStyle = `rgba(239, 68, 68, ${0.1 * (1 - dist / 100)})`;
+              ctx.lineWidth = 0.5;
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.stroke();
+            }
+          });
+        }
       });
 
       animationFrameId = requestAnimationFrame(draw);
@@ -667,12 +580,11 @@ const Navbar = () => {
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          style={{ fontSize: '1.5rem', fontWeight: 'bold', cursor: 'pointer' }}
+          style={{ fontSize: '1.25rem', fontWeight: 'bold', cursor: 'pointer' }}
         >
           <span className="text-gradient">Welcome</span><span style={{color: 'var(--primary)'}}>.</span>
         </motion.div>
 
-        {/* Desktop Menu */}
         <div className="nav-links">
           {navLinks.map((link) => (
             <a key={link.name} href={link.href} className="nav-link">
@@ -686,13 +598,11 @@ const Navbar = () => {
           </div>
         </div>
 
-        {/* Mobile Toggle */}
         <div className="mobile-toggle" onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? <X size={28} /> : <Menu size={28} />}
+          {isOpen ? <X size={24} /> : <Menu size={24} />}
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div 
@@ -702,18 +612,18 @@ const Navbar = () => {
             style={{ overflow: 'hidden', background: 'rgba(0,0,0,0.95)', borderBottom: '1px solid #333' }}
             className="md:hidden"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', padding: '2rem 0' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem', padding: '1.5rem 0' }}>
               {navLinks.map((link) => (
                 <a 
                   key={link.name} 
                   href={link.href} 
                   onClick={() => setIsOpen(false)}
-                  style={{ color: '#d1d5db', fontSize: '1.125rem', fontWeight: 500 }}
+                  style={{ color: '#d1d5db', fontSize: '1.1rem', fontWeight: 500 }}
                 >
                   {link.name}
                 </a>
               ))}
-              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1rem' }}>
+              <div style={{ display: 'flex', gap: '1.5rem', marginTop: '0.5rem' }}>
                  <SocialIcon Icon={Github} href="https://github.com/OmGupta2473" />
                  <SocialIcon Icon={Linkedin} href="https://www.linkedin.com/in/om-gupta-265b80268/" />
                  <SocialIcon Icon={Mail} href="mailto:omgupta2473@gmail.com" />
@@ -732,7 +642,6 @@ const SocialIcon = ({ Icon, href }) => (
   </a>
 );
 
-// Defined outside to prevent re-render glitches
 const HERO_TITLES = [
   'ML Engineering Enthusiast',
   'AI Development Enthusiast',
@@ -742,12 +651,10 @@ const HERO_TITLES = [
 // 3. Hero Section
 const Hero = () => {
   const typingText = useTypewriter(HERO_TITLES);
-
   const avatarUrl = "./avatar.png";
 
   return (
     <section id="home" className="hero-section">
-      {/* Background Glow - positioned behind content */}
       <div style={{ 
         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', 
         width: '500px', height: '500px', background: 'rgba(239, 68, 68, 0.2)', 
@@ -755,10 +662,10 @@ const Hero = () => {
       }} />
 
       <div className="container hero-grid">
-        {/* Text Content */}
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: false, amount: 0.2 }}
           transition={{ duration: 0.8 }}
         >
           <h1 className="hero-title">
@@ -766,14 +673,10 @@ const Hero = () => {
             <span className="text-gradient">Om Gupta</span>
           </h1>
           <div className="hero-subtitle">
-             <span style={{color: 'white', fontWeight: 600, minWidth: '400px', display: 'inline-block'}}>{typingText}</span>
+             <span style={{color: 'white', fontWeight: 600, minWidth: '100%', display: 'inline-block'}}>{typingText}</span>
           </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-            <a 
-              href="/OmResumeSDE.pdf" 
-              download 
-              className="btn btn-primary"
-            >
+          <div className="hero-actions">
+            <a href="/OmResumeSDE.pdf" download className="btn btn-primary">
               <Download size={18} /> Download CV
             </a>
             <a href="#projects" className="btn btn-outline">
@@ -782,29 +685,25 @@ const Hero = () => {
           </div>
         </motion.div>
 
-        {/* Orbit Animation */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: false, amount: 0.2 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="hero-orbit-container"
         >
-          {/* Central Profile */}
           <div className="profile-circle">
              <img src={avatarUrl} alt="Om Profile" className="profile-img" />
           </div>
 
-          {/* Orbit Rings */}
           <div className="orbit-ring inner" />
           <div className="orbit-ring outer" />
 
-          {/* Orbiting Icons */}
-          <OrbitingIcon icon={<Code2 />} angle={0} radius={190} speed={20} />
-          <OrbitingIcon icon={<BrainCircuit />} angle={72} radius={190} speed={20} />
-          <OrbitingIcon icon={<Database />} angle={144} radius={190} speed={20} />
-          <OrbitingIcon icon={<Globe />} angle={216} radius={190} speed={20} />
-          <OrbitingIcon icon={<Cpu />} angle={288} radius={190} speed={20} />
-
+          <OrbitingIcon icon={<Code2 size={20} />} angle={0} radius={110} speed={20} />
+          <OrbitingIcon icon={<BrainCircuit size={20} />} angle={72} radius={110} speed={20} />
+          <OrbitingIcon icon={<Database size={20} />} angle={144} radius={110} speed={20} />
+          <OrbitingIcon icon={<Globe size={20} />} angle={216} radius={110} speed={20} />
+          <OrbitingIcon icon={<Cpu size={20} />} angle={288} radius={110} speed={20} />
         </motion.div>
       </div>
     </section>
@@ -815,10 +714,10 @@ const OrbitingIcon = ({ icon, angle, radius, speed }) => {
   return (
     <motion.div
       style={{
-        position: 'absolute', top: '50%', left: '50%', marginTop: -24, marginLeft: -24,
-        width: '3rem', height: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'absolute', top: '50%', left: '50%', marginTop: -20, marginLeft: -20,
+        width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center',
         background: '#111827', border: '1px solid rgba(239, 68, 68, 0.5)', borderRadius: '50%',
-        color: '#f87171', boxShadow: '0 0 15px rgba(220, 38, 38, 0.4)'
+        color: '#f87171', boxShadow: '0 0 10px rgba(220, 38, 38, 0.4)'
       }}
       animate={{ rotate: 360 }}
       transition={{ repeat: Infinity, duration: speed, ease: "linear" }}
@@ -849,21 +748,20 @@ const About = () => {
     <section id="about" className="section">
       <div className="container about-grid">
         
-        {/* Left Content */}
         <motion.div
-          initial={{ opacity: 0, x: -50 }}
+          initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: false }}
+          viewport={{ once: false, amount: 0.2 }}
           transition={{ duration: 0.6 }}
         >
           <div className="section-header">
             <div className="section-line"></div>
             <span className="section-label">About Me</span>
           </div>
-          <h2 style={{ fontSize: '3rem', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '1.5rem' }}>
+          <h2 style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontWeight: 'bold', lineHeight: 1.2, marginBottom: '1rem' }}>
             Bridging Logic with <br/><span style={{ color: '#6b7280' }}>Innovation.</span>
           </h2>
-          <p style={{ color: '#9ca3af', lineHeight: 1.7, marginBottom: '2rem', fontSize: '1.125rem', textAlign: 'justify' }}>
+          <p style={{ color: '#9ca3af', lineHeight: 1.7, marginBottom: '2rem', fontSize: '1rem', textAlign: 'justify' }}>
             Enthusiastic Computer Science Engineering student with strong foundations in programming, data structures, machine learning, and full-stack development. Experienced in AI-powered applications, data-driven problem-solving, and scalable software development. Seeking opportunities to apply technical skills, collaborate effectively, and contribute meaningfully to organizational goals.
           </p>
 
@@ -876,34 +774,32 @@ const About = () => {
           </div>
         </motion.div>
 
-        {/* Right Code Card */}
         <motion.div
-          initial={{ opacity: 0, y: 50 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false }}
+          viewport={{ once: false, amount: 0.2 }}
           transition={{ duration: 0.6, delay: 0.2 }}
           style={{ position: 'relative' }}
         >
-           {/* Glow Effect */}
            <div style={{ position: 'absolute', inset: 0, background: 'rgba(220, 38, 38, 0.2)', filter: 'blur(60px)', borderRadius: '50%', zIndex: -10, transform: 'translateY(2.5rem)' }} />
            
            <div className="code-card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid #1f2937' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', paddingBottom: '0.75rem', borderBottom: '1px solid #1f2937' }}>
                  <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: '#ef4444' }} />
                  <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: '#eab308' }} />
                  <div style={{ width: '0.75rem', height: '0.75rem', borderRadius: '50%', background: '#22c55e' }} />
                  <span style={{ marginLeft: 'auto', fontSize: '0.75rem', color: '#4b5563' }}>om_kumar.py</span>
               </div>
 
-              <div style={{ lineHeight: 2, fontSize: '0.9rem' }}>
+              <div style={{ lineHeight: 1.8, fontSize: '0.8rem' }}>
                 <div><span className="code-purple">class</span> <span className="code-yellow">Engineer</span>:</div>
-                <div style={{ paddingLeft: '1.5rem' }}><span className="code-purple">def</span> <span className="code-blue">__init__</span>(<span className="code-orange">self</span>):</div>
-                <div style={{ paddingLeft: '3rem' }}><span className="code-orange">self</span>.<span className="code-red">name</span> = <span className="code-green">"Om"</span></div>
-                <div style={{ paddingLeft: '3rem' }}><span className="code-orange">self</span>.<span className="code-red">role</span> = <span className="code-green">"CSE Student"</span></div>
-                <div style={{ paddingLeft: '3rem' }}><span className="code-orange">self</span>.<span className="code-red">stack</span> = [<span className="code-green">"Python"</span>, <span className="code-green">"React"</span>, <span className="code-green">"ML"</span>]</div>
+                <div style={{ paddingLeft: '1rem' }}><span className="code-purple">def</span> <span className="code-blue">__init__</span>(<span className="code-orange">self</span>):</div>
+                <div style={{ paddingLeft: '2rem' }}><span className="code-orange">self</span>.<span className="code-red">name</span> = <span className="code-green">"Om"</span></div>
+                <div style={{ paddingLeft: '2rem' }}><span className="code-orange">self</span>.<span className="code-red">role</span> = <span className="code-green">"CSE Student"</span></div>
+                <div style={{ paddingLeft: '2rem' }}><span className="code-orange">self</span>.<span className="code-red">stack</span> = [<span className="code-green">"Python"</span>, <span className="code-green">"React"</span>, <span className="code-green">"ML"</span>]</div>
                 <br/>
-                <div style={{ paddingLeft: '1.5rem' }}><span className="code-purple">def</span> <span className="code-blue">mission</span>(<span className="code-orange">self</span>):</div>
-                <div style={{ paddingLeft: '3rem' }}><span className="code-purple">return</span> <span className="code-green">"Build scalable AI solutions"</span></div>
+                <div style={{ paddingLeft: '1rem' }}><span className="code-purple">def</span> <span className="code-blue">mission</span>(<span className="code-orange">self</span>):</div>
+                <div style={{ paddingLeft: '2rem' }}><span className="code-purple">return</span> <span className="code-green">"Build scalable AI solutions"</span></div>
               </div>
            </div>
         </motion.div>
@@ -964,13 +860,12 @@ const Projects = () => {
 
   return (
     <section id="projects" className="section">
-       {/* Background Noise removed */}
       <div className="container" style={{ position: 'relative', zIndex: 10 }}>
         <motion.div 
-          style={{ textAlign: 'center', marginBottom: '4rem' }}
+          style={{ textAlign: 'center', marginBottom: '2rem' }}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: false }}
+          viewport={{ once: false, amount: 0.2 }}
         >
           <span className="section-label">My Work</span>
           <h2 style={{ fontSize: '3rem', fontWeight: 'bold', marginTop: '0.5rem' }}>Featured Projects</h2>
@@ -982,26 +877,24 @@ const Projects = () => {
               key={index}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: false }}
+              viewport={{ once: false, amount: 0.2 }}
               transition={{ delay: index * 0.1 }}
               className="project-card"
             >
-              {/* Gradient Header - Thin Strip, No Icons */}
               <div style={{ height: '6px', width: '100%', background: project.color }} />
 
-              <div style={{ padding: '2rem', flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.75rem' }}>{project.title}</h3>
-                <p style={{ color: '#9ca3af', marginBottom: '1.5rem', flex: 1, lineHeight: 1.6 }}>{project.desc}</p>
+              <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{project.title}</h3>
+                <p style={{ color: '#9ca3af', marginBottom: '1rem', flex: 1, lineHeight: 1.5, fontSize: '0.95rem' }}>{project.desc}</p>
                 
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem' }}>
                   {project.tech.map((t, i) => (
-                    <span key={i} style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: '#6b7280', background: 'black', padding: '0.25rem 0.75rem', borderRadius: '0.25rem', border: '1px solid #1f2937' }}>
+                    <span key={i} style={{ fontSize: '0.7rem', fontFamily: 'monospace', color: '#6b7280', background: 'black', padding: '0.2rem 0.6rem', borderRadius: '0.2rem', border: '1px solid #1f2937' }}>
                       {t}
                     </span>
                   ))}
                 </div>
 
-                {/* Bottom Links (Slide in on hover) */}
                 <div className="project-links">
                   {project.link !== "#" && (
                     <a href={project.link} target="_blank" rel="noreferrer" className="project-btn">
@@ -1024,27 +917,22 @@ const Projects = () => {
 // 6. Contact Section
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [status, setStatus] = useState('idle'); // idle | submitting | success | error
+  const [status, setStatus] = useState('idle'); 
   const [user, setUser] = useState(null);
   const [authError, setAuthError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   // Auth Listener
   useEffect(() => {
-    // Correct Auth Flow
     const initAuth = async () => {
       try {
-        // Check for custom token provided by the environment (Preview)
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
         } else {
-          // Fallback to Anonymous auth (Local/Production)
-          // This requires "Anonymous" to be enabled in Firebase Console
           await signInAnonymously(auth);
         }
       } catch (error) {
         console.error("Auth Error:", error);
-        // specific error codes for disabled provider
         if (error.code === 'auth/configuration-not-found' || 
             error.code === 'auth/admin-restricted-operation' ||
             error.code === 'auth/operation-not-allowed') {
@@ -1052,9 +940,7 @@ const Contact = () => {
         }
       }
     };
-
     initAuth();
-
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
     });
@@ -1068,22 +954,19 @@ const Contact = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!user) return;
-
     setStatus('submitting');
     setErrorMessage('');
-
     try {
-      await addDoc(collection(db, 'messages'), {
+      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'contact_messages'), {
         ...formData,
         userId: user.uid,
         createdAt: serverTimestamp(),
       });
       setStatus('success');
       setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setStatus('idle'), 5000); // Reset after 5s
+      setTimeout(() => setStatus('idle'), 5000); 
     } catch (error) {
       console.error("Error sending message:", error);
-      // Improve error message readability
       if (error.message.includes('insufficient permissions')) {
         setErrorMessage("Permission denied. Please check Firestore Rules.");
       } else {
@@ -1096,126 +979,120 @@ const Contact = () => {
   return (
     <section id="contact" className="section" style={{ overflow: 'hidden' }}>
       <div className="container contact-grid">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '4rem' }}>
-          
-          {/* Info */}
-          <motion.div
-             initial={{ opacity: 0, x: -50 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: false }}
-          >
-            <span className="section-label">Get in Touch</span>
-            <h2 style={{ fontSize: '3rem', fontWeight: 'bold', margin: '1rem 0 2rem' }}>Let's connect and <br /> build the future.</h2>
-            <p style={{ color: '#9ca3af', fontSize: '1.125rem', marginBottom: '3rem' }}>
-              I am currently open to freelance projects and internship opportunities. Whether you have a question about my stack or just want to say hi, I'll try my best to get back to you!
-            </p>
+        <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+        >
+          <span className="section-label">Get in Touch</span>
+          <h2 style={{ fontSize: '3rem', fontWeight: 'bold', margin: '1rem 0 1.5rem' }}>Let's connect and <br /> build the future.</h2>
+          <p style={{ color: '#9ca3af', fontSize: '1rem', marginBottom: '2rem' }}>
+            I am currently open to freelance projects and internship opportunities. Whether you have a question about my stack or just want to say hi, I'll try my best to get back to you!
+          </p>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <a href="mailto:omgupta2473@gmail.com" style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#d1d5db' }}>
-                <div style={{ width: '3rem', height: '3rem', background: '#111827', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
-                  <Mail size={20} />
-                </div>
-                <span>omgupta2473@gmail.com</span>
-              </a>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: '#d1d5db' }}>
-                <div style={{ width: '3rem', height: '3rem', background: '#111827', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
-                  <MapPin size={20} />
-                </div>
-                <span>Jharkhand, India</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <a href="mailto:omgupta2473@gmail.com" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#d1d5db', fontSize: '0.9rem' }}>
+              <div style={{ width: '2.5rem', height: '2.5rem', background: '#111827', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+                <Mail size={18} />
               </div>
+              <span>omgupta2473@gmail.com</span>
+            </a>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#d1d5db', fontSize: '0.9rem' }}>
+              <div style={{ width: '2.5rem', height: '2.5rem', background: '#111827', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
+                <MapPin size={18} />
+              </div>
+              <span>Jharkhand, India</span>
             </div>
-          </motion.div>
+          </div>
+        </motion.div>
 
-          {/* Form */}
-          <motion.div
-             initial={{ opacity: 0, x: 50 }}
-             whileInView={{ opacity: 1, x: 0 }}
-             viewport={{ once: false }}
-             className="glass-card"
-          >
-            {authError ? (
-                <div style={{ padding: '2rem', textAlign: 'center', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '0.5rem', background: 'rgba(239, 68, 68, 0.1)' }}>
-                    <AlertCircle size={48} style={{ margin: '0 auto 1rem' }} />
-                    <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Authentication Required</h3>
-                    <p style={{ fontSize: '0.9rem' }}>Please enable <strong>Anonymous Authentication</strong> in your Firebase Console to use this form.</p>
-                </div>
-            ) : status === 'success' ? (
-              <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem' }}>
-                <CheckCircle size={64} style={{ color: '#22c55e', marginBottom: '1.5rem' }} />
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Message Sent!</h3>
-                <p style={{ color: '#9ca3af' }}>Thanks for reaching out. I'll get back to you soon.</p>
-                <button onClick={() => setStatus('idle')} style={{ marginTop: '2rem', background: 'transparent', border: '1px solid #374151', color: '#d1d5db', padding: '0.5rem 1.5rem', borderRadius: '9999px', cursor: 'pointer' }}>
-                  Send another
-                </button>
+        <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: false, amount: 0.2 }}
+            className="glass-card"
+        >
+          {authError ? (
+              <div style={{ padding: '2rem', textAlign: 'center', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '0.5rem', background: 'rgba(239, 68, 68, 0.1)' }}>
+                  <AlertCircle size={48} style={{ margin: '0 auto 1rem' }} />
+                  <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Authentication Required</h3>
+                  <p style={{ fontSize: '0.9rem' }}>Please enable <strong>Anonymous Authentication</strong> in your Firebase Console to use this form.</p>
               </div>
-            ) : (
-              <form onSubmit={handleSubmit}>
-                <div>
-                  <label className="contact-label">Name</label>
-                  <input 
-                    type="text" 
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    className="contact-input"
-                    placeholder="Your Name"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="contact-label">Email</label>
-                  <input 
-                    type="email" 
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className="contact-input"
-                    placeholder="your@email.com"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="contact-label">Message</label>
-                  <textarea 
-                    rows={4}
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    className="contact-input"
-                    placeholder="Tell me about your project..."
-                    required
-                  />
-                </div>
-                <button 
-                  type="submit" 
-                  disabled={status === 'submitting'}
-                  style={{ width: '100%', opacity: status === 'submitting' ? 0.7 : 1 }} 
-                  className="btn btn-primary"
-                >
-                  {status === 'submitting' ? (
-                    <>
-                      <Loader2 className="animate-spin" size={20} style={{ marginRight: '0.5rem' }} /> Sending...
-                    </>
-                  ) : (
-                    'Send Message'
-                  )}
-                </button>
-                {status === 'error' && (
-                  <div style={{ marginTop: '1rem', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#ef4444', marginBottom: '0.25rem' }}>
-                       <AlertTriangle size={18} />
-                       <span style={{ fontWeight: 'bold' }}>Submission Failed</span>
-                    </div>
-                    <p style={{ color: '#ef4444', fontSize: '0.875rem' }}>
-                      {errorMessage || "Something went wrong. Please check your connection."}
-                    </p>
-                  </div>
+          ) : status === 'success' ? (
+            <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem' }}>
+              <CheckCircle size={64} style={{ color: '#22c55e', marginBottom: '1.5rem' }} />
+              <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Message Sent!</h3>
+              <p style={{ color: '#9ca3af' }}>Thanks for reaching out. I'll get back to you soon.</p>
+              <button onClick={() => setStatus('idle')} style={{ marginTop: '2rem', background: 'transparent', border: '1px solid #374151', color: '#d1d5db', padding: '0.5rem 1.5rem', borderRadius: '9999px', cursor: 'pointer' }}>
+                Send another
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div>
+                <label className="contact-label">Name</label>
+                <input 
+                  type="text" 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="contact-input"
+                  placeholder="Your Name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="contact-label">Email</label>
+                <input 
+                  type="email" 
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="contact-input"
+                  placeholder="your@email.com"
+                  required
+                />
+              </div>
+              <div>
+                <label className="contact-label">Message</label>
+                <textarea 
+                  rows={4}
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  className="contact-input"
+                  placeholder="Tell me about your project..."
+                  required
+                />
+              </div>
+              <button 
+                type="submit" 
+                disabled={status === 'submitting'}
+                style={{ width: '100%', opacity: status === 'submitting' ? 0.7 : 1 }} 
+                className="btn btn-primary"
+              >
+                {status === 'submitting' ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} style={{ marginRight: '0.5rem' }} /> Sending...
+                  </>
+                ) : (
+                  'Send Message'
                 )}
-              </form>
-            )}
-          </motion.div>
-
-        </div>
+              </button>
+              {status === 'error' && (
+                <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', color: '#ef4444', marginBottom: '0.25rem' }}>
+                      <AlertTriangle size={18} />
+                      <span style={{ fontWeight: 'bold' }}>Submission Failed</span>
+                  </div>
+                  <p style={{ color: '#ef4444', fontSize: '0.875rem' }}>
+                    {errorMessage || "Something went wrong. Please check your connection."}
+                  </p>
+                </div>
+              )}
+            </form>
+          )}
+        </motion.div>
       </div>
     </section>
   );
