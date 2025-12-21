@@ -20,7 +20,8 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  AlertTriangle
+  AlertTriangle,
+  Bot 
 } from 'lucide-react';
 
 // --- FIREBASE IMPORTS ---
@@ -753,8 +754,8 @@ const OrbitingIcon = ({ icon, angle, radius, speed }) => {
     >
       <div 
          style={{ 
-            transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`,
-            width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'
+           transform: `rotate(${angle}deg) translate(${radius}px) rotate(-${angle}deg)`,
+           width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center'
          }}
       >
         <motion.div animate={{ rotate: -360 }} transition={{ repeat: Infinity, duration: speed, ease: "linear" }}>
@@ -841,6 +842,33 @@ const About = () => {
 const Projects = () => {
   const projects = [
     {
+      title: "Enterprise AI Agent",
+      desc: "Production-grade Autonomous Multi-Agent system. Orchestrates specialized agents for deterministic financial analytics (0% hallucinations) and RAG-based policy search. Containerized with Docker.",
+      tech: ["LangChain", "Docker", "Python", "ChromaDB"],
+      color: "linear-gradient(135deg, #3b82f6, #8b5cf6)", // Blue to Purple
+      link: "https://enterprise-agent.onrender.com/",
+      github: "https://github.com/OmGupta2473/enterprise-agent",
+      icon: <Bot size={48} />
+    },
+    {
+      title: "Moonz Nail Store",
+      desc: "Full-stack E-Commerce & Booking platform with Google Auth, Real-time DB, and online booking system.",
+      tech: ["React", "Firebase", "Vercel"],
+      color: "linear-gradient(135deg, #a855f7, #db2777)",
+      link: "https://moonz-nail-store.vercel.app",
+      github: "https://github.com/OmGupta2473/moonz-nail-store",
+      icon: <Globe size={48} />
+    },
+    {
+      title: "AI PDF Query System",
+      desc: "Intelligent system to query DNA/Medical PDFs using Natural Language Processing and LangChain.",
+      tech: ["Python", "LangChain", "Streamlit", "NLP"],
+      color: "linear-gradient(135deg, #ef4444, #ea580c)",
+      link: "#",
+      github: "https://github.com/OmGupta2473/File-Analysis-AI-Query-System",
+      icon: <BrainCircuit size={48} />
+    },
+    {
       title: "AI Chatbot Mobile App",
       desc: "Cross-platform mobile app featuring distinct AI personalities. Built with React Native and integrated with LLM APIs for interactive conversations.",
       tech: ["React Native", "LLM API", "AsyncStorage"],
@@ -859,15 +887,6 @@ const Projects = () => {
       icon: <Database size={48} />
     },
     {
-      title: "Moonz Nail Store",
-      desc: "Full-stack E-Commerce & Booking platform with Google Auth, Real-time DB, and online booking system.",
-      tech: ["React", "Firebase", "Vercel"],
-      color: "linear-gradient(135deg, #a855f7, #db2777)",
-      link: "https://moonz-nail-store.vercel.app",
-      github: "https://github.com/OmGupta2473/moonz-nail-store",
-      icon: <Globe size={48} />
-    },
-    {
       title: "CSV Agent (RAG)",
       desc: "RAG Application allowing natural language Q&A on CSV data using Embeddings and Groq API.",
       tech: ["Python", "Groq API", "Streamlit", "HuggingFace"],
@@ -875,15 +894,6 @@ const Projects = () => {
       link: "#",
       github: "https://github.com/OmGupta2473",
       icon: <FileJson size={48} />
-    },
-    {
-      title: "AI PDF Query System",
-      desc: "Intelligent system to query DNA/Medical PDFs using Natural Language Processing and LangChain.",
-      tech: ["Python", "LangChain", "Streamlit", "NLP"],
-      color: "linear-gradient(135deg, #ef4444, #ea580c)",
-      link: "#",
-      github: "https://github.com/OmGupta2473/File-Analysis-AI-Query-System",
-      icon: <BrainCircuit size={48} />
     }
   ];
 
@@ -913,7 +923,12 @@ const Projects = () => {
               <div style={{ height: '6px', width: '100%', background: project.color }} />
 
               <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{project.title}</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>{project.title}</h3>
+                    {/* Optional: Add icon to top right corner for visual flair */}
+                    <div style={{color: '#374151', transform: 'scale(0.8)'}}>{project.icon}</div>
+                </div>
+                
                 <p style={{ color: '#9ca3af', marginBottom: '1rem', flex: 1, lineHeight: 1.5, fontSize: '0.95rem' }}>{project.desc}</p>
                 
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem' }}>
