@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+// Import EmailJS
+import emailjs from '@emailjs/browser'; 
+
 import { 
   Github, 
   Linkedin, 
@@ -19,50 +22,9 @@ import {
   Smartphone,
   Loader2,
   CheckCircle,
-  AlertCircle,
   AlertTriangle,
   Bot 
 } from 'lucide-react';
-
-// --- FIREBASE IMPORTS ---
-import { initializeApp } from 'firebase/app';
-import { 
-  getAuth, 
-  signInAnonymously,
-  signInWithCustomToken, 
-  onAuthStateChanged 
-} from 'firebase/auth';
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  serverTimestamp 
-} from 'firebase/firestore';
-
-/**
- * --- FIREBASE CONFIGURATION ---
- */
-const firebaseConfig = {
-  apiKey: "AIzaSyAVi6zM-r29R-P9pPiXBmNbqXj5SOASLOk",
-  authDomain: "om-portfolio-b0444.firebaseapp.com",
-  projectId: "om-portfolio-b0444",
-  storageBucket: "om-portfolio-b0444.firebasestorage.app",
-  messagingSenderId: "180646636434",
-  appId: "1:180646636434:web:3acf1eaa3e806a0a006f4b",
-  measurementId: "G-L0RV2G32KH"
-};
-
-// Initialize Firebase
-let app, auth, db;
-try {
-  app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  db = getFirestore(app);
-} catch (error) {
-  console.error("Firebase Initialization Error:", error);
-}
-
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'om-portfolio-b0444';
 
 /**
  * 1. CSS STYLES (Replaces Tailwind)
@@ -706,7 +668,7 @@ const Hero = () => {
              <span style={{color: 'white', fontWeight: 600, minWidth: '100%', display: 'inline-block'}}>{typingText}</span>
           </div>
           <div className="hero-actions">
-            <a href="/OmResumeSDE.pdf" download className="btn btn-primary">
+            <a href="/Om_Resume.pdf" download className="btn btn-primary">
               <Download size={18} /> Download CV
             </a>
             <a href="#projects" className="btn btn-outline">
@@ -958,66 +920,53 @@ const Projects = () => {
   );
 };
 
-// 6. Contact Section
+// 6. Contact Section (Updated with EmailJS and KEYS)
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState('idle'); 
-  const [user, setUser] = useState(null);
-  const [authError, setAuthError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-
-  // Auth Listener
-  useEffect(() => {
-    const initAuth = async () => {
-      try {
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
-      } catch (error) {
-        console.error("Auth Error:", error);
-        if (error.code === 'auth/configuration-not-found' || 
-            error.code === 'auth/admin-restricted-operation' ||
-            error.code === 'auth/operation-not-allowed') {
-           setAuthError(true);
-        }
-      }
-    };
-    initAuth();
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-    });
-    return () => unsubscribe();
-  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    if (!user) return;
+    
+    // 1. Basic Validation
+    if (!formData.name || !formData.email || !formData.message) {
+      setErrorMessage("Please fill out all fields.");
+      setStatus('error');
+      return;
+    }
+
     setStatus('submitting');
     setErrorMessage('');
-    try {
-      await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'contact_messages'), {
-        ...formData,
-        userId: user.uid,
-        createdAt: serverTimestamp(),
-      });
-      setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-      setTimeout(() => setStatus('idle'), 5000); 
-    } catch (error) {
-      console.error("Error sending message:", error);
-      if (error.message.includes('insufficient permissions')) {
-        setErrorMessage("Permission denied. Please check Firestore Rules.");
-      } else {
-        setErrorMessage(error.message);
-      }
-      setStatus('error');
-    }
+
+    // 2. Prepare Data for EmailJS
+    const templateParams = {
+      name: formData.name,
+      email: formData.email,
+      message: formData.message,
+    };
+
+    // 3. Send Email (YOUR KEYS ARE HERE)
+    emailjs.send(
+      'service_4c1p3oj',   // Service ID
+      'template_pent4k2',  // Template ID
+      templateParams,
+      '0frz4C6DotmHbgRuK'  // Public Key
+    )
+    .then((response) => {
+       console.log('SUCCESS!', response.status, response.text);
+       setStatus('success');
+       setFormData({ name: '', email: '', message: '' });
+       setTimeout(() => setStatus('idle'), 5000);
+    }, (error) => {
+       console.log('FAILED...', error);
+       setErrorMessage("Failed to send message. Please try again later.");
+       setStatus('error');
+    });
   };
 
   return (
@@ -1056,13 +1005,7 @@ const Contact = () => {
             viewport={{ once: false, amount: 0.2 }}
             className="glass-card"
         >
-          {authError ? (
-              <div style={{ padding: '2rem', textAlign: 'center', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '0.5rem', background: 'rgba(239, 68, 68, 0.1)' }}>
-                  <AlertCircle size={48} style={{ margin: '0 auto 1rem' }} />
-                  <h3 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>Authentication Required</h3>
-                  <p style={{ fontSize: '0.9rem' }}>Please enable <strong>Anonymous Authentication</strong> in your Firebase Console to use this form.</p>
-              </div>
-          ) : status === 'success' ? (
+          {status === 'success' ? (
             <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '2rem' }}>
               <CheckCircle size={64} style={{ color: '#22c55e', marginBottom: '1.5rem' }} />
               <h3 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Message Sent!</h3>
